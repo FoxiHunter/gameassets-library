@@ -16,13 +16,8 @@ function showToast(message, type = "success") {
   toast.className = `toast ${type}`;
   toast.textContent = message;
   notifier.appendChild(toast);
-
-  setTimeout(() => {
-    toast.classList.add('hide');
-    toast.addEventListener('animationend', () => toast.remove());
-  }, 2500);
+  setTimeout(() => toast.remove(), 3000);
 }
-
 
 const profileBtn = document.getElementById("profileBtn");
 const profileMenu = document.getElementById("profileMenu");
@@ -95,37 +90,46 @@ firebase.auth().onAuthStateChanged(user => {
 
 function deleteAccount() {
   const user = firebase.auth().currentUser;
-  const notifier = document.getElementById("notifier");
-
-  const toast = document.createElement("div");
-  toast.className = "toast confirm";
-  toast.innerHTML = `
-    <div>Удалить аккаунт?</div>
-    <div class="notify-btns">
-      <button id="confirmDelete">Да</button>
-      <button id="cancelDelete">Нет</button>
+  const modal = document.createElement("div");
+  modal.className = "confirm-modal";
+  modal.innerHTML = `
+    <div class="confirm-box">
+      <p>Введите пароль повторно для подтверждения:</p>
+      <input type="password" id="confirmPassword" placeholder="Пароль">
+      <div class="confirm-actions">
+        <button id="confirmDelete">Продолжить</button>
+        <button id="cancelDelete">Отмена</button>
+      </div>
     </div>
   `;
-  notifier.appendChild(toast);
+  document.body.appendChild(modal);
 
-  document.getElementById("confirmDelete").addEventListener("click", async () => {
-    toast.remove();
-    try {
-      const email = user.email;
-      const password = prompt("Введите пароль повторно для подтверждения:");
-      if (!password) return showToast("Удаление отменено", "error");
-
-      const credential = firebase.auth.EmailAuthProvider.credential(email, password);
-      await user.reauthenticateWithCredential(credential);
-      await user.delete();
-      showToast("Аккаунт удалён", "success");
-    } catch (err) {
-      showToast("Ошибка: " + err.message, "error");
-    }
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.remove();
   });
 
   document.getElementById("cancelDelete").addEventListener("click", () => {
-    toast.remove();
+    modal.remove();
+  });
+
+  document.getElementById("confirmDelete").addEventListener("click", async () => {
+    try {
+      if (user.providerData.length && user.providerData[0].providerId === "password") {
+        const password = document.getElementById("confirmPassword").value;
+        const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+        await user.reauthenticateWithCredential(credential);
+      } else {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        await user.reauthenticateWithPopup(provider);
+      }
+
+      await user.delete();
+      modal.remove();
+      showToast("Аккаунт удалён", "success");
+    } catch (err) {
+      modal.remove();
+      showToast("Ошибка: " + err.message, "error");
+    }
   });
 }
 
