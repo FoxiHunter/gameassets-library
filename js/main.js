@@ -1,11 +1,11 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyCk1ektdWkzHnnbMuWDJDSKkclzkltdKqZk",
-  authDomain: "gameassets-library.firebaseapp.com",
-  projectId: "gameassets-library",
-  storageBucket: "gameassets-library.appspot.com",
-  messagingSenderId: "297984510726",
-  appId: "1:297984510726:web:1134bc38eeacb43947ac87",
-  measurementId: "G-HZC53QFM8M"
+  apiKey: "AIzaSyB2LQsJuE0-vqD80Rcqqpav-jxlapYrcpg",
+  authDomain: "gameassets-library-f1f0d.firebaseapp.com",
+  projectId: "gameassets-library-f1f0d",
+  storageBucket: "gameassets-library-f1f0d.firebasestorage.app",
+  messagingSenderId: "33160635214",
+  appId: "1:33160635214:web:a7b6873dae71dc3e73f41f",
+  measurementId: "G-MFQLQ60PQV"
 };
 
 firebase.initializeApp(firebaseConfig);
