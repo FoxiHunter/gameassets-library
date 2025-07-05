@@ -17,8 +17,12 @@ function showToast(message, type = "success") {
   toast.textContent = message;
   notifier.appendChild(toast);
 
-  setTimeout(() => toast.remove(), 3000);
+  setTimeout(() => {
+    toast.classList.add('hide');
+    toast.addEventListener('animationend', () => toast.remove());
+  }, 2500);
 }
+
 
 const profileBtn = document.getElementById("profileBtn");
 const profileMenu = document.getElementById("profileMenu");
@@ -91,11 +95,32 @@ firebase.auth().onAuthStateChanged(user => {
 
 function deleteAccount() {
   const user = firebase.auth().currentUser;
-  if (user && confirm("Удалить аккаунт?")) {
-    user.delete()
-      .then(() => showToast("Аккаунт удалён", "success"))
-      .catch(err => showToast("Ошибка: " + err.message, "error"));
-  }
+  const notifier = document.getElementById("notifier");
+
+  const toast = document.createElement("div");
+  toast.className = "toast confirm";
+  toast.innerHTML = `
+    <div>Удалить аккаунт?</div>
+    <div class="notify-btns">
+      <button id="confirmDelete">Да</button>
+      <button id="cancelDelete">Нет</button>
+    </div>
+  `;
+  notifier.appendChild(toast);
+
+  document.getElementById("confirmDelete").addEventListener("click", () => {
+    user.delete().then(() => {
+      toast.remove();
+      showToast("Аккаунт удалён", "success");
+    }).catch(err => {
+      toast.remove();
+      showToast("Ошибка: " + err.message, "error");
+    });
+  });
+
+  document.getElementById("cancelDelete").addEventListener("click", () => {
+    toast.remove();
+  });
 }
 
 document.querySelectorAll('.login-form button, .login-form .forgot-password').forEach(btn => {
