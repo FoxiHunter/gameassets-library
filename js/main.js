@@ -108,20 +108,27 @@ function deleteAccount() {
   `;
   notifier.appendChild(toast);
 
-  document.getElementById("confirmDelete").addEventListener("click", () => {
-    user.delete().then(() => {
-      toast.remove();
+  document.getElementById("confirmDelete").addEventListener("click", async () => {
+    toast.remove();
+    try {
+      const email = user.email;
+      const password = prompt("Введите пароль повторно для подтверждения:");
+      if (!password) return showToast("Удаление отменено", "error");
+
+      const credential = firebase.auth.EmailAuthProvider.credential(email, password);
+      await user.reauthenticateWithCredential(credential);
+      await user.delete();
       showToast("Аккаунт удалён", "success");
-    }).catch(err => {
-      toast.remove();
+    } catch (err) {
       showToast("Ошибка: " + err.message, "error");
-    });
+    }
   });
 
   document.getElementById("cancelDelete").addEventListener("click", () => {
     toast.remove();
   });
 }
+
 
 document.querySelectorAll('.login-form button, .login-form .forgot-password').forEach(btn => {
   let holdTimeout;
