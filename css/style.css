@@ -294,7 +294,61 @@ footer p {
         transform: scale(1);
     }
 }
-/* ===== Анимации кнопок: резина и удержание ===== */
+
+#notifier {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  min-width: 240px;
+  max-width: 320px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  background: rgba(30, 30, 40, 0.95);
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  animation: slideIn 0.4s ease, fadeOut 0.5s ease 2.5s forwards;
+  border-left: 5px solid;
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+.toast.success {
+  border-color: #4affb3;
+  box-shadow: 0 0 16px rgba(50, 255, 170, 0.3);
+}
+
+.toast.error {
+  border-color: #ff6e6e;
+  box-shadow: 0 0 16px rgba(255, 90, 90, 0.3);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
 
 .login-form button,
 .login-form .forgot-password {

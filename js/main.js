@@ -1,4 +1,3 @@
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCk1ektdWkzHnnbMuWDJDSKkclzkltdKqZk",
   authDomain: "gameassets-library.firebaseapp.com",
@@ -11,7 +10,16 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-// Элементы
+function showToast(message, type = "success") {
+  const notifier = document.getElementById("notifier");
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  notifier.appendChild(toast);
+
+  setTimeout(() => toast.remove(), 3000);
+}
+
 const profileBtn = document.getElementById("profileBtn");
 const profileMenu = document.getElementById("profileMenu");
 const loginButton = document.getElementById("loginButton");
@@ -20,62 +28,60 @@ const loginForm = document.getElementById("loginForm");
 const registerBtn = document.getElementById("registerBtn");
 const googleLogin = document.getElementById("googleLogin");
 
-// Открытие/закрытие меню профиля
 profileBtn.addEventListener("click", () => {
   profileMenu.style.display = (profileMenu.style.display === "block" ? "none" : "block");
 });
 
-// Открытие формы входа
 document.addEventListener("click", (e) => {
   if (e.target.id === "loginButton") {
     loginBlock.classList.toggle("show");
   }
 });
 
-// Вход через email
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const email = document.getElementById("username").value;
   const password = document.getElementById("password").value;
+
   try {
     await firebase.auth().signInWithEmailAndPassword(email, password);
     loginBlock.classList.remove("show");
+    showToast("Вход выполнен!", "success");
   } catch (error) {
-    alert("Ошибка входа: " + error.message);
+    showToast("Ошибка входа: " + error.message, "error");
   }
 });
 
-// Регистрация
 registerBtn.addEventListener("click", async () => {
   const email = document.getElementById("username").value;
   const password = document.getElementById("password").value;
+
   try {
     await firebase.auth().createUserWithEmailAndPassword(email, password);
-    alert("Аккаунт создан!");
+    showToast("Аккаунт создан!", "success");
     loginBlock.classList.remove("show");
   } catch (error) {
-    alert("Ошибка регистрации: " + error.message);
+    showToast("Ошибка регистрации: " + error.message, "error");
   }
 });
 
-// Вход через Google
 googleLogin.addEventListener("click", async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   try {
     await firebase.auth().signInWithPopup(provider);
     loginBlock.classList.remove("show");
+    showToast("Вы вошли через Google!", "success");
   } catch (error) {
-    alert("Ошибка Google входа: " + error.message);
+    showToast("Ошибка Google входа: " + error.message, "error");
   }
 });
 
-// Обработка состояния пользователя
 firebase.auth().onAuthStateChanged(user => {
   if (user) {
     profileMenu.innerHTML = `
       <button>Профиль</button>
       <button>Доп. информация</button>
-      <button onclick="firebase.auth().signOut()">Выйти</button>
+      <button onclick="firebase.auth().signOut(); showToast('Вы вышли', 'success')">Выйти</button>
       <button onclick="deleteAccount()" style="color: #ff8888;">Удалить аккаунт</button>
     `;
   } else {
@@ -83,15 +89,15 @@ firebase.auth().onAuthStateChanged(user => {
   }
 });
 
-// Удаление аккаунта
 function deleteAccount() {
   const user = firebase.auth().currentUser;
   if (user && confirm("Удалить аккаунт?")) {
-    user.delete().then(() => alert("Аккаунт удалён"));
+    user.delete()
+      .then(() => showToast("Аккаунт удалён", "success"))
+      .catch(err => showToast("Ошибка: " + err.message, "error"));
   }
 }
 
-// Анимация "резинки"
 document.querySelectorAll('.login-form button, .login-form .forgot-password').forEach(btn => {
   let holdTimeout;
   let isHeld = false;
