@@ -41,7 +41,7 @@ loginForm.addEventListener("submit", async (e) => {
     loginBlock.classList.remove("show");
     showToast("Вход выполнен!", "success");
   } catch (error) {
-    showToast("Ошибка входа: " + error.message, "error");
+   showToast("Ошибка входа. Проверьте email и пароль.", "error");
   }
 });
 
@@ -54,7 +54,7 @@ registerBtn.addEventListener("click", async () => {
     showToast("Аккаунт создан!", "success");
     loginBlock.classList.remove("show");
   } catch (error) {
-    showToast("Ошибка регистрации: " + error.message, "error");
+ showToast("Ошибка при регистрации. Убедитесь, что email корректен, а пароль не короче 6 символов.", "error");
   }
 });
 
