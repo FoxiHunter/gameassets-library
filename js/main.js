@@ -92,13 +92,51 @@ function renderProfileCard(user) {
   const nicknameInput = document.getElementById("nicknameInput");
   const userIdInput = document.getElementById("userIdInput");
   const downloadsBlock = document.querySelector(".downloads-block");
+  const profileImage = document.getElementById("profileImage");
+  const avatarUpload = document.getElementById("avatarUpload");
 
   nicknameInput.value = user.displayName || "";
   nicknameInput.placeholder = "Введите ник";
 
   userIdInput.value = user.uid;
 
+  // Ник обновляется при enter или blur
+  nicknameInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      updateNickname(user, nicknameInput.value.trim());
+    }
+  });
+
+  nicknameInput.addEventListener("blur", () => {
+    if (nicknameInput.value.trim() !== user.displayName) {
+      updateNickname(user, nicknameInput.value.trim());
+    }
+  });
+
+  // Копирование ID
+  document.getElementById("copyIdBtn").addEventListener("click", () => {
+    navigator.clipboard.writeText(user.uid)
+      .then(() => showToast("ID скопирован!", "success"))
+      .catch(() => showToast("Не удалось скопировать ID", "error"));
+  });
+
+  // Отображение выбранной аватарки
+  avatarUpload.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      profileImage.src = event.target.result;
+      showToast("Аватар обновлён (локально)", "success");
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Пустой массив скаченных картинок
   const downloaded = [];
+
   downloadsBlock.innerHTML = "";
 
   if (downloaded.length === 0) {
@@ -112,6 +150,14 @@ function renderProfileCard(user) {
       downloadsBlock.appendChild(image);
     });
   }
+}
+
+function updateNickname(user, newName) {
+  if (!newName || newName === user.displayName) return;
+
+  user.updateProfile({ displayName: newName })
+    .then(() => showToast("Ник обновлён!", "success"))
+    .catch(() => showToast("Ошибка при обновлении ника", "error"));
 }
 
 document.getElementById("closeProfile").addEventListener("click", () => {
