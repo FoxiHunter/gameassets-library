@@ -18,7 +18,7 @@ const registerBtn = document.getElementById("registerBtn");
 const googleLogin = document.getElementById("googleLogin");
 
 profileBtn.addEventListener("click", () => {
-  profileMenu.style.display = (profileMenu.style.display === "block" ? "none" : "block");
+  profileMenu.style.display = profileMenu.style.display === "block" ? "none" : "block";
 });
 
 document.addEventListener("click", (e) => {
@@ -84,41 +84,39 @@ firebase.auth().onAuthStateChanged(user => {
 function openProfileCard() {
   const user = firebase.auth().currentUser;
   if (!user) return;
-
-  const overlay = document.createElement("div");
-  overlay.className = "modal-overlay";
-  overlay.innerHTML = `
-    <div class="modal profile-card">
-      <div class="avatar-container">
-        <div class="avatar-circle" id="avatarCircle"></div>
-        <input type="file" id="avatarUpload" style="display: none;" />
-        <button id="changeAvatarBtn">Сменить</button>
-      </div>
-      <div class="profile-info">
-        <div class="info-line"><b>ID:</b> <span id="userId">${user.uid}</span> <button onclick="navigator.clipboard.writeText('${user.uid}')">📋</button></div>
-        <div class="info-line">
-          <b>Ник:</b> <input type="text" id="displayName" value="${user.displayName || 'Без ника'}" />
-        </div>
-        <div class="info-line date">
-          <b>Регистрация:</b> ${new Date(user.metadata.creationTime).toLocaleDateString()}
-        </div>
-        <button onclick="document.body.removeChild(this.closest('.modal-overlay'))">Закрыть</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-
-  document.getElementById("changeAvatarBtn").addEventListener("click", () => {
-    document.getElementById("avatarUpload").click();
-  });
-
-  overlay.addEventListener("click", (e) => {
-    if (e.target.className === "modal-overlay") {
-      overlay.remove();
-    }
-  });
+  document.getElementById("profileOverlay").style.display = "flex";
+  renderProfileCard(user);
 }
+
+function renderProfileCard(user) {
+  const nicknameInput = document.getElementById("nicknameInput");
+  const userIdInput = document.getElementById("userIdInput");
+  const downloadsBlock = document.querySelector(".downloads-block");
+
+  nicknameInput.value = user.displayName || "";
+  nicknameInput.placeholder = "Введите ник";
+
+  userIdInput.value = user.uid;
+
+  const downloaded = ["img1.png", "img2.png"];
+  downloadsBlock.innerHTML = "";
+
+  if (downloaded.length === 0) {
+    downloadsBlock.textContent = "тут появятся скаченные вами изображения.";
+  } else {
+    downloaded.forEach(img => {
+      const image = document.createElement("img");
+      image.src = `path/to/${img}`;
+      image.style.width = "60px";
+      image.style.margin = "4px";
+      downloadsBlock.appendChild(image);
+    });
+  }
+}
+
+document.getElementById("closeProfile").addEventListener("click", () => {
+  document.getElementById("profileOverlay").style.display = "none";
+});
 
 document.querySelectorAll('.login-form button, .login-form .forgot-password').forEach(btn => {
   let holdTimeout;
