@@ -1,0 +1,12 @@
+.env
+firebase-config.js
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+node_modules/
+dist/
+build/
+.vscode/
+.idea/
+*.swp
