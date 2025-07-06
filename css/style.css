@@ -611,10 +611,11 @@ footer p {
   color: #fff;
   font-size: 18px;
   cursor: pointer;
-  transition: 0.25s ease;
+  transition: all 0.25s ease;
   box-shadow: 0 4px 10px rgba(100, 50, 200, 0.3);
-  margin-top: 1px;
+  margin-top: -20px;
 }
+
 
 
 
