@@ -71,6 +71,14 @@ googleLogin.addEventListener("click", async () => {
 
 firebase.auth().onAuthStateChanged(user => {
   if (user) {
+    if (!user.displayName) {
+      const shortId = user.uid.slice(-4);
+      const defaultName = `User${shortId}`;
+      user.updateProfile({ displayName: defaultName }).then(() => {
+        showToast(`Ник установлен: ${defaultName}`, "success");
+      });
+    }
+
     profileMenu.innerHTML = `
       <button id="profileOpenBtn">Профиль</button>
       <button>Доп. информация</button>
@@ -106,7 +114,7 @@ function renderProfileCard(user) {
   newNicknameInput.id = "nicknameInput";
 
   const nicknameInput = newNicknameInput;
-  nicknameInput.value = user.displayName || "";
+  nicknameInput.value = user.displayName || `User${user.uid.slice(-4)}`;
   nicknameInput.placeholder = "Введите ник";
 
   nicknameInput.addEventListener("keydown", (e) => {
