@@ -41,7 +41,7 @@ loginForm.addEventListener("submit", async (e) => {
     loginBlock.classList.remove("show");
     showToast("Вход выполнен!", "success");
   } catch (error) {
-   showToast("Ошибка входа. Проверьте email и пароль.", "error");
+    showToast("Ошибка входа. Проверьте email и пароль.", "error");
   }
 });
 
@@ -54,7 +54,7 @@ registerBtn.addEventListener("click", async () => {
     showToast("Аккаунт создан!", "success");
     loginBlock.classList.remove("show");
   } catch (error) {
- showToast("Ошибка при регистрации. Убедитесь, что email корректен, а пароль не короче 6 символов.", "error");
+    showToast("Ошибка при регистрации. Убедитесь, что email корректен, а пароль не короче 6 символов.", "error");
   }
 });
 
@@ -77,11 +77,10 @@ firebase.auth().onAuthStateChanged(user => {
       <button onclick="firebase.auth().signOut(); showToast('Вы вышли', 'success')">Выйти</button>
     `;
 
-    if (user.photoURL) {
-      profileBtn.style.backgroundImage = `url(${user.photoURL})`;
-      profileBtn.style.backgroundSize = "cover";
-      profileBtn.style.backgroundPosition = "center";
-    }
+    const avatar = user.photoURL || "img/avamg.png";
+    profileBtn.style.backgroundImage = `url(${avatar})`;
+    profileBtn.style.backgroundSize = "cover";
+    profileBtn.style.backgroundPosition = "center";
   } else {
     profileMenu.innerHTML = `<button id="loginButton">Войти / Зарегистрироваться</button>`;
     profileBtn.style.backgroundImage = "";
@@ -99,11 +98,8 @@ function renderProfileCard(user) {
   const downloadsBlock = document.querySelector(".downloads-block");
   const profileImage = document.getElementById("profileImage");
 
-  if (user.photoURL) {
-    profileImage.src = user.photoURL;
-  } else {
-    profileImage.src = "default-avatar.png";
-  }
+  const avatar = user.photoURL || "img/avamg.png";
+  profileImage.src = avatar;
 
   const newNicknameInput = document.getElementById("nicknameInput").cloneNode(true);
   document.getElementById("nicknameInput").replaceWith(newNicknameInput);
