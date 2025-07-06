@@ -582,7 +582,6 @@ footer p {
   display: flex;
   align-items: center;
   gap: 10px;
-  justify-content: space-between;
 }
 
 .profile-row input {
@@ -601,12 +600,16 @@ footer p {
 }
 
 #copyIdBtn {
-  padding: 8px 10px;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
   background: linear-gradient(145deg, #4a3c6e, #302c47);
   border: none;
   border-radius: 10px;
   color: #fff;
-  font-size: 16px;
+  font-size: 18px;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 10px rgba(100, 50, 200, 0.3);
@@ -616,7 +619,6 @@ footer p {
   background: linear-gradient(145deg, #6a55a0, #3e2f5c);
   transform: scale(1.05);
 }
-
 .downloads-block {
   margin-top: 16px;
   padding: 12px;

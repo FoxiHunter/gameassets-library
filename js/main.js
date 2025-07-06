@@ -98,7 +98,7 @@ function renderProfileCard(user) {
 
   userIdInput.value = user.uid;
 
-  const downloaded = ["img1.png", "img2.png"];
+  const downloaded = [];
   downloadsBlock.innerHTML = "";
 
   if (downloaded.length === 0) {
