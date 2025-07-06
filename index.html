@@ -39,6 +39,31 @@
 
   <div id="notifier"></div>
 
+<div class="overlay" id="profileOverlay" style="display: none;">
+  <div class="profile-card">
+    <div class="profile-avatar-wrapper">
+      <div class="profile-avatar" id="avatarCircle">
+        <img src="default-avatar.png" alt="Аватар" id="profileImage" />
+        <label for="avatarUpload" class="change-avatar-btn">✎</label>
+        <input type="file" id="avatarUpload" accept="image/*" hidden />
+      </div>
+    </div>
+    <div class="profile-info">
+      <div class="profile-row">
+        <label>ID:</label>
+        <span id="userIdText"></span>
+        <button id="copyIdBtn">📋</button>
+      </div>
+      <div class="profile-row">
+        <label>Ник:</label>
+        <input type="text" id="nicknameInput" placeholder="Ваш ник" />
+      </div>
+      <div class="profile-footer" id="registrationDate"></div>
+    </div>
+  </div>
+</div>
+
+
   <footer>
     <p>&copy; 2025 Сайт для скачивания UI/GUI картинок. Все права защищены.</p>
   </footer>

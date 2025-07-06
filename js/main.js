@@ -25,6 +25,10 @@ document.addEventListener("click", (e) => {
   if (e.target.id === "loginButton") {
     loginBlock.classList.toggle("show");
   }
+
+  if (e.target.id === "profileOpenBtn") {
+    openProfileCard();
+  }
 });
 
 loginForm.addEventListener("submit", async (e) => {
@@ -68,7 +72,7 @@ googleLogin.addEventListener("click", async () => {
 firebase.auth().onAuthStateChanged(user => {
   if (user) {
     profileMenu.innerHTML = `
-      <button>Профиль</button>
+      <button id="profileOpenBtn">Профиль</button>
       <button>Доп. информация</button>
       <button onclick="firebase.auth().signOut(); showToast('Вы вышли', 'success')">Выйти</button>
     `;
@@ -76,6 +80,45 @@ firebase.auth().onAuthStateChanged(user => {
     profileMenu.innerHTML = `<button id="loginButton">Войти / Зарегистрироваться</button>`;
   }
 });
+
+function openProfileCard() {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.innerHTML = `
+    <div class="modal profile-card">
+      <div class="avatar-container">
+        <div class="avatar-circle" id="avatarCircle"></div>
+        <input type="file" id="avatarUpload" style="display: none;" />
+        <button id="changeAvatarBtn">Сменить</button>
+      </div>
+      <div class="profile-info">
+        <div class="info-line"><b>ID:</b> <span id="userId">${user.uid}</span> <button onclick="navigator.clipboard.writeText('${user.uid}')">📋</button></div>
+        <div class="info-line">
+          <b>Ник:</b> <input type="text" id="displayName" value="${user.displayName || 'Без ника'}" />
+        </div>
+        <div class="info-line date">
+          <b>Регистрация:</b> ${new Date(user.metadata.creationTime).toLocaleDateString()}
+        </div>
+        <button onclick="document.body.removeChild(this.closest('.modal-overlay'))">Закрыть</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  document.getElementById("changeAvatarBtn").addEventListener("click", () => {
+    document.getElementById("avatarUpload").click();
+  });
+
+  overlay.addEventListener("click", (e) => {
+    if (e.target.className === "modal-overlay") {
+      overlay.remove();
+    }
+  });
+}
 
 document.querySelectorAll('.login-form button, .login-form .forgot-password').forEach(btn => {
   let holdTimeout;
