@@ -669,3 +669,63 @@ footer p {
   background: linear-gradient(145deg, #6e59a4, #43336c);
   transform: scale(1.05);
 }
+.download-card {
+  background: #1a1a2e;
+  border: 2px solid #ff9900;
+  border-radius: 16px;
+  padding: 12px;
+  width: 260px;
+  box-shadow:
+    0 0 24px rgba(255, 153, 0, 0.6),
+    0 0 8px rgba(255, 153, 0, 0.3),
+    inset 0 0 6px rgba(255, 153, 0, 0.2);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.download-card:hover {
+  box-shadow:
+    0 0 14px rgba(255, 153, 0, 0.4),
+    0 0 6px rgba(255, 153, 0, 0.2),
+    inset 0 0 6px rgba(255, 153, 0, 0.2);
+  transform: scale(1.015);
+}
+
+.card-image {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  transition: opacity 0.3s ease;
+}
+
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-type {
+  font-weight: 600;
+  color: #ffcc66;
+  font-size: 14px;
+}
+
+.card-download {
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #ffb347, #ffcc66);
+  color: #141414;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(255, 204, 102, 0.4);
+  transition: 0.25s ease;
+}
+
+.card-download:hover {
+  background: #ffe599;
+}
