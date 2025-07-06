@@ -1,5 +1,6 @@
 const firebaseConfig = window.FIREBASE_CONFIG;
 firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 function showToast(message, type = "success") {
   const notifier = document.getElementById("notifier");
@@ -194,3 +195,14 @@ document.querySelectorAll('.login-form button, .login-form .forgot-password').fo
     btn.classList.remove('hold');
   });
 });
+
+async function canDownload() {
+  const user = firebase.auth().currentUser;
+  if (!user) return false;
+  const snapshot = await db.collection("accessRights")
+    .where("userId", "==", user.uid)
+    .get();
+  if (snapshot.empty) return false;
+  const expiresAt = snapshot.docs[0].data().expiresAt.toDate();
+  return new Date() < expiresAt;
+}
