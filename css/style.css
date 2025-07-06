@@ -729,62 +729,21 @@ footer p {
 .card-download:hover {
   background: #ffe599;
 }
-.download-card.retro-horror {
-  background: #1a1a1a;
-  border: 2px solid #ff4d00;
-  color: #ffcc00;
-  box-shadow: 0 0 12px #ff4d00;
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
-.download-card.retro-horror:hover {
-  box-shadow: 0 0 20px #ffcc00;
-  transform: scale(1.02);
-}
-
-.download-card.sci-fi {
-  background: #0b0f1a;
-  border: 2px solid #00ffff;
-  color: #00ffff;
-  box-shadow: 0 0 12px #00ffff;
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
-.download-card.sci-fi:hover {
-  box-shadow: 0 0 20px #00ffff;
-  transform: scale(1.02);
+.category-btn {
+  margin: 0 8px;
+  padding: 10px 16px;
+  background: linear-gradient(145deg, #4a3c6e, #302c47);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(150, 100, 255, 0.2);
 }
 
-.download-card.fantasy {
-  background: #1a0f1a;
-  border: 2px solid #cc33ff;
-  color: #cc99ff;
-  box-shadow: 0 0 12px #cc33ff;
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
-.download-card.fantasy:hover {
-  box-shadow: 0 0 20px #cc99ff;
-  transform: scale(1.02);
-}
-
-.download-card.modern-ui {
-  background: #121212;
-  border: 2px solid #6666ff;
-  color: #cfcfff;
-  box-shadow: 0 0 12px #6666ff;
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
-.download-card.modern-ui:hover {
-  box-shadow: 0 0 20px #cfcfff;
-  transform: scale(1.02);
-}
-
-.download-card.military {
-  background: #1c1f1c;
-  border: 2px solid #66cc66;
-  color: #ccffcc;
-  box-shadow: 0 0 12px #66cc66;
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
-.download-card.military:hover {
-  box-shadow: 0 0 20px #ccffcc;
-  transform: scale(1.02);
+.category-btn:hover {
+  background: linear-gradient(145deg, #5e4e88, #3f3464);
+  transform: scale(1.05);
+  box-shadow: 0 6px 14px rgba(180, 130, 255, 0.3);
 }
