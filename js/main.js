@@ -41,7 +41,7 @@ loginForm.addEventListener("submit", async (e) => {
     await firebase.auth().signInWithEmailAndPassword(email, password);
     loginBlock.classList.remove("show");
     showToast("Вход выполнен!", "success");
-  } catch (error) {
+  } catch {
     showToast("Ошибка входа. Проверьте email и пароль.", "error");
   }
 });
@@ -54,8 +54,8 @@ registerBtn.addEventListener("click", async () => {
     await firebase.auth().createUserWithEmailAndPassword(email, password);
     showToast("Аккаунт создан!", "success");
     loginBlock.classList.remove("show");
-  } catch (error) {
-    showToast("Ошибка при регистрации. Убедитесь, что email корректен, а пароль не короче 6 символов.", "error");
+  } catch {
+    showToast("Ошибка при регистрации. Email корректен? Пароль не короче 6 символов?", "error");
   }
 });
 
@@ -70,14 +70,13 @@ googleLogin.addEventListener("click", async () => {
   }
 });
 
-firebase.auth().onAuthStateChanged(user => {
+firebase.auth().onAuthStateChanged(async (user) => {
   if (user) {
     if (!user.displayName) {
       const shortId = user.uid.slice(-4);
       const defaultName = `User${shortId}`;
-      user.updateProfile({ displayName: defaultName }).then(() => {
-        showToast(`Ник установлен: ${defaultName}`, "success");
-      });
+      await user.updateProfile({ displayName: defaultName });
+      showToast(`Ник установлен: ${defaultName}`, "success");
     }
 
     profileMenu.innerHTML = `
@@ -90,11 +89,54 @@ firebase.auth().onAuthStateChanged(user => {
     profileBtn.style.backgroundImage = `url(${avatar})`;
     profileBtn.style.backgroundSize = "cover";
     profileBtn.style.backgroundPosition = "center";
+
+    await checkDownloadPermission();
+
   } else {
     profileMenu.innerHTML = `<button id="loginButton">Войти / Зарегистрироваться</button>`;
     profileBtn.style.backgroundImage = "";
   }
 });
+
+async function checkDownloadPermission() {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  const snapshot = await db.collection("accessRights")
+    .where("userId", "==", user.uid)
+    .get();
+
+  const btn = document.querySelector(".card-download");
+
+  if (snapshot.empty) {
+    btn.disabled = true;
+    btn.textContent = "Недоступно";
+    btn.classList.add("locked");
+    return;
+  }
+
+  const data = snapshot.docs[0].data();
+  const expiresAt = data.expiresAt.toDate();
+
+  if (new Date() < expiresAt) {
+    btn.disabled = false;
+    btn.textContent = "Скачать";
+    btn.classList.remove("locked");
+    btn.addEventListener("click", () => {
+      const imageUrl = document.querySelector(".card-image").src;
+      const link = document.createElement("a");
+      link.href = imageUrl;
+      link.download = "ui-element.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  } else {
+    btn.disabled = true;
+    btn.textContent = "Истекло";
+    btn.classList.add("locked");
+  }
+}
 
 function openProfileCard() {
   const user = firebase.auth().currentUser;
@@ -141,25 +183,11 @@ function renderProfileCard(user) {
       .catch(() => showToast("Не удалось скопировать ID", "error"));
   });
 
-  const downloaded = [];
-  downloadsBlock.innerHTML = "";
-
-  if (downloaded.length === 0) {
-    downloadsBlock.textContent = "тут появятся скаченные вами изображения.";
-  } else {
-    downloaded.forEach(img => {
-      const image = document.createElement("img");
-      image.src = `path/to/${img}`;
-      image.style.width = "60px";
-      image.style.margin = "4px";
-      downloadsBlock.appendChild(image);
-    });
-  }
+  downloadsBlock.innerHTML = "тут появятся скаченные вами изображения.";
 }
 
 function updateNickname(user, newName) {
   if (!newName || newName === user.displayName) return;
-
   user.updateProfile({ displayName: newName })
     .then(() => showToast("Ник обновлён!", "success"))
     .catch(() => showToast("Ошибка при обновлении ника", "error"));
@@ -195,14 +223,3 @@ document.querySelectorAll('.login-form button, .login-form .forgot-password').fo
     btn.classList.remove('hold');
   });
 });
-
-async function canDownload() {
-  const user = firebase.auth().currentUser;
-  if (!user) return false;
-  const snapshot = await db.collection("accessRights")
-    .where("userId", "==", user.uid)
-    .get();
-  if (snapshot.empty) return false;
-  const expiresAt = snapshot.docs[0].data().expiresAt.toDate();
-  return new Date() < expiresAt;
-}

@@ -21,20 +21,19 @@
     </div>
   </div>
 
-<div class="download-card">
-  <img src="img/example.png" alt="UI Элемент" class="card-image">
-  <div class="card-bottom">
-    <div class="card-type"></div>
-    <button class="card-download">Скачать</button>
+  <div class="download-card">
+    <img src="img/example.png" alt="UI Элемент" class="card-image">
+    <div class="card-bottom">
+      <div class="card-type">Тип: Retro Horror</div>
+      <button class="card-download">Скачать</button>
+    </div>
   </div>
-</div>
-
 
   <section id="login">
     <div class="login-form">
       <h2>Вход</h2>
       <form id="loginForm">
-         <input type="email" id="username" placeholder="Email" required>
+        <input type="email" id="username" placeholder="Email" required>
         <input type="password" id="password" placeholder="Пароль" required>
         <button type="button" class="btn" id="googleLogin">Войти через Google</button>
         <div class="btn-group">
@@ -48,12 +47,11 @@
 
   <div id="notifier"></div>
 
-  <!-- Профиль -->
   <div class="overlay" id="profileOverlay" style="display: none;">
     <div class="profile-card">
       <div class="profile-avatar-wrapper">
         <div class="profile-avatar">
-          <img src="default-avatar.png" alt="Аватар" id="profileImage">
+          <img src="img/avamg.png" alt="Аватар" id="profileImage">
         </div>
       </div>
 
@@ -94,8 +92,9 @@
     };
   </script>
 
-  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="js/main.js"></script>
 
 </body>
