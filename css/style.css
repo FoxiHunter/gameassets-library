@@ -613,7 +613,9 @@ footer p {
   cursor: pointer;
   transition: 0.25s ease;
   box-shadow: 0 4px 10px rgba(100, 50, 200, 0.3);
+  margin-top: 1px;
 }
+
 
 
 #copyIdBtn:hover {

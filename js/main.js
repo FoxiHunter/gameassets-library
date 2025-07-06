@@ -100,6 +100,12 @@ function renderProfileCard(user) {
   const profileImage = document.getElementById("profileImage");
   const avatarUpload = document.getElementById("avatarUpload");
 
+  if (user.photoURL) {
+    profileImage.src = user.photoURL;
+  } else {
+    profileImage.src = "default-avatar.png";
+  }
+
   const newNicknameInput = document.getElementById("nicknameInput").cloneNode(true);
   document.getElementById("nicknameInput").replaceWith(newNicknameInput);
   newNicknameInput.id = "nicknameInput";
