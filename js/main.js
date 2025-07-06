@@ -30,6 +30,10 @@ document.addEventListener("click", (e) => {
   if (e.target.id === "profileOpenBtn") {
     openProfileCard();
   }
+
+  if (e.target.classList.contains("category-btn")) {
+    loadSubclasses(e.target.dataset.category);
+  }
 });
 
 loginForm.addEventListener("submit", async (e) => {
@@ -91,7 +95,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
     profileBtn.style.backgroundPosition = "center";
 
     await checkDownloadPermission();
-
+    await loadCategories();
   } else {
     profileMenu.innerHTML = `<button id="loginButton">Войти / Зарегистрироваться</button>`;
     profileBtn.style.backgroundImage = "";
@@ -106,36 +110,71 @@ async function checkDownloadPermission() {
     .where("userId", "==", user.uid)
     .get();
 
-  const btn = document.querySelector(".card-download");
+  const btns = document.querySelectorAll(".card-download");
 
-  if (snapshot.empty) {
-    btn.disabled = true;
-    btn.textContent = "Недоступно";
-    btn.classList.add("locked");
-    return;
-  }
+  btns.forEach(btn => {
+    if (snapshot.empty) {
+      btn.disabled = true;
+      btn.textContent = "Недоступно";
+      btn.classList.add("locked");
+    } else {
+      const data = snapshot.docs[0].data();
+      const expiresAt = data.expiresAt.toDate();
+      if (new Date() < expiresAt) {
+        btn.disabled = false;
+        btn.textContent = "Скачать";
+        btn.classList.remove("locked");
+        btn.addEventListener("click", () => {
+          const imageUrl = btn.closest(".download-card").querySelector(".card-image").src;
+          const link = document.createElement("a");
+          link.href = imageUrl;
+          link.download = "ui-element.png";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+      } else {
+        btn.disabled = true;
+        btn.textContent = "Истекло";
+        btn.classList.add("locked");
+      }
+    }
+  });
+}
 
-  const data = snapshot.docs[0].data();
-  const expiresAt = data.expiresAt.toDate();
+async function loadCategories() {
+  const container = document.createElement("div");
+  container.className = "category-nav";
 
-  if (new Date() < expiresAt) {
-    btn.disabled = false;
-    btn.textContent = "Скачать";
-    btn.classList.remove("locked");
-    btn.addEventListener("click", () => {
-      const imageUrl = document.querySelector(".card-image").src;
-      const link = document.createElement("a");
-      link.href = imageUrl;
-      link.download = "ui-element.png";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
-  } else {
-    btn.disabled = true;
-    btn.textContent = "Истекло";
-    btn.classList.add("locked");
-  }
+  const categories = ["Хоррор", "Фэнтези", "Футуризм"];
+  categories.forEach(name => {
+    const btn = document.createElement("button");
+    btn.className = "category-btn";
+    btn.dataset.category = name;
+    btn.textContent = name;
+    container.appendChild(btn);
+  });
+
+  document.body.insertBefore(container, document.querySelector(".download-card"));
+}
+
+async function loadSubclasses(category) {
+  const subclassContainer = document.querySelector(".card-grid") || document.createElement("div");
+  subclassContainer.className = "card-grid";
+  subclassContainer.innerHTML = "";
+
+  const subclasses = ["Индикаторы", "Фоны", "NN"];
+  subclasses.forEach(name => {
+    const block = document.createElement("div");
+    block.className = "card-subclass";
+    block.innerHTML = `
+      <div class="subclass-title">${name}</div>
+      <div class="card-stack"></div>
+    `;
+    subclassContainer.appendChild(block);
+  });
+
+  document.body.appendChild(subclassContainer);
 }
 
 function openProfileCard() {
