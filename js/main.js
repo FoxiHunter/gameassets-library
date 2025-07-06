@@ -76,8 +76,15 @@ firebase.auth().onAuthStateChanged(user => {
       <button>Доп. информация</button>
       <button onclick="firebase.auth().signOut(); showToast('Вы вышли', 'success')">Выйти</button>
     `;
+
+    if (user.photoURL) {
+      profileBtn.style.backgroundImage = `url(${user.photoURL})`;
+      profileBtn.style.backgroundSize = "cover";
+      profileBtn.style.backgroundPosition = "center";
+    }
   } else {
     profileMenu.innerHTML = `<button id="loginButton">Войти / Зарегистрироваться</button>`;
+    profileBtn.style.backgroundImage = "";
   }
 });
 
@@ -89,18 +96,18 @@ function openProfileCard() {
 }
 
 function renderProfileCard(user) {
-  const nicknameInput = document.getElementById("nicknameInput");
-  const userIdInput = document.getElementById("userIdInput");
   const downloadsBlock = document.querySelector(".downloads-block");
   const profileImage = document.getElementById("profileImage");
   const avatarUpload = document.getElementById("avatarUpload");
 
+  const newNicknameInput = document.getElementById("nicknameInput").cloneNode(true);
+  document.getElementById("nicknameInput").replaceWith(newNicknameInput);
+  newNicknameInput.id = "nicknameInput";
+
+  const nicknameInput = newNicknameInput;
   nicknameInput.value = user.displayName || "";
   nicknameInput.placeholder = "Введите ник";
 
-  userIdInput.value = user.uid;
-
-  // Ник обновляется при enter или blur
   nicknameInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -114,14 +121,16 @@ function renderProfileCard(user) {
     }
   });
 
-  // Копирование ID
+  document.getElementById("userIdInput").value = user.uid;
+
+  const copyBtn = document.getElementById("copyIdBtn");
+  copyBtn.replaceWith(copyBtn.cloneNode(true));
   document.getElementById("copyIdBtn").addEventListener("click", () => {
     navigator.clipboard.writeText(user.uid)
       .then(() => showToast("ID скопирован!", "success"))
       .catch(() => showToast("Не удалось скопировать ID", "error"));
   });
 
-  // Отображение выбранной аватарки
   avatarUpload.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -129,14 +138,25 @@ function renderProfileCard(user) {
     const reader = new FileReader();
     reader.onload = (event) => {
       profileImage.src = event.target.result;
-      showToast("Аватар обновлён (локально)", "success");
+      const profileBtn = document.getElementById("profileBtn");
+      profileBtn.style.backgroundImage = `url(${event.target.result})`;
+      profileBtn.style.backgroundSize = "cover";
+      profileBtn.style.backgroundPosition = "center";
     };
     reader.readAsDataURL(file);
+
+    const storageRef = firebase.storage().ref();
+    const avatarRef = storageRef.child(`avatars/${user.uid}.png`);
+    avatarRef.put(file).then(() => {
+      avatarRef.getDownloadURL().then((url) => {
+        user.updateProfile({ photoURL: url }).then(() => {
+          showToast("Аватарка обновлена!", "success");
+        });
+      });
+    });
   });
 
-  // Пустой массив скаченных картинок
   const downloaded = [];
-
   downloadsBlock.innerHTML = "";
 
   if (downloaded.length === 0) {
