@@ -148,6 +148,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
     <button>Доп. информация</button>
     <button onclick="firebase.auth().signOut(); showToast('Вы вышли', 'success')">Выйти</button>
   `;
+document.getElementById("profileOpenBtn").addEventListener("click", openProfileCard);
 
   const avatar = user.photoURL || "img/avamg.png";
   profileBtn.style.backgroundImage = `url(${avatar})`;
