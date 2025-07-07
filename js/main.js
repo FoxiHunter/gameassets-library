@@ -229,7 +229,7 @@ async function loadCards(theme, sub) {
     const snapshot = await db.collection("images")
       .where("theme", "==", theme)
       .where("subcategory", "==", sub)
-      .where("hidden", "==", false)
+      .where("visible", "==", true)
       .get();
 
     if (snapshot.empty) {
@@ -252,11 +252,13 @@ async function loadCards(theme, sub) {
     });
 
     await checkDownloadPermission();
+
   } catch (e) {
     console.error("Ошибка при загрузке карточек:", e);
     content.innerHTML = `<p style="color:#f66;">Ошибка загрузки данных.</p>`;
   }
 }
+
 
 function openProfileCard() {
   const user = firebase.auth().currentUser;
@@ -317,7 +319,6 @@ document.getElementById("closeProfile").addEventListener("click", () => {
   document.getElementById("profileOverlay").style.display = "none";
 });
 
-// Анимация кнопок
 document.querySelectorAll('.login-form button, .login-form .forgot-password').forEach(btn => {
   let holdTimeout;
   let isHeld = false;
