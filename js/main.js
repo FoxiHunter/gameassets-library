@@ -18,18 +18,37 @@ const loginForm = document.getElementById("loginForm");
 const registerBtn = document.getElementById("registerBtn");
 const googleLogin = document.getElementById("googleLogin");
 
-profileBtn.addEventListener("click", () => {
-  profileMenu.style.display = profileMenu.style.display === "block" ? "none" : "block";
-});
-
 const subcategoryPopup = document.getElementById("subcategoryPopup");
+const loginOverlay = document.getElementById("loginOverlay");
 let currentTheme = null;
 
 document.addEventListener("click", (e) => {
   const isCategoryBtn = e.target.classList.contains("category-btn");
-  const clickedTheme = isCategoryBtn ? (e.target.dataset.theme || e.target.dataset.category) : null;
+  const clickedTheme = isCategoryBtn ? e.target.dataset.theme : null;
   const clickedInsidePopup = e.target.closest("#subcategoryPopup");
 
+  // Открытие/закрытие меню профиля
+  if (e.target.id === "profileBtn") {
+    profileMenu.style.display = profileMenu.style.display === "block" ? "none" : "block";
+    return;
+  }
+
+  // Открытие формы логина
+  if (e.target.id === "loginButton") {
+    loginBlock.classList.add("show");
+    loginOverlay.classList.add("active");
+    document.body.classList.add("no-scroll");
+    return;
+  }
+
+  // Закрытие формы логина при клике вне
+  if (!e.target.closest("#loginForm") && !e.target.closest("#profileMenu")) {
+    loginBlock.classList.remove("show");
+    loginOverlay.classList.remove("active");
+    document.body.classList.remove("no-scroll");
+  }
+
+  // Категории
   if (isCategoryBtn) {
     const rect = e.target.getBoundingClientRect();
 
@@ -45,7 +64,6 @@ document.addEventListener("click", (e) => {
     subcategoryPopup.setAttribute("data-theme", clickedTheme);
     subcategoryPopup.style.top = `${rect.bottom + window.scrollY}px`;
     subcategoryPopup.style.left = `${rect.left + window.scrollX}px`;
-
     subcategoryPopup.classList.add("animate");
     currentTheme = clickedTheme;
   } else if (!clickedInsidePopup) {
@@ -62,6 +80,8 @@ loginForm.addEventListener("submit", async (e) => {
   try {
     await firebase.auth().signInWithEmailAndPassword(email, password);
     loginBlock.classList.remove("show");
+    loginOverlay.classList.remove("active");
+    document.body.classList.remove("no-scroll");
     showToast("Вход выполнен!", "success");
   } catch {
     showToast("Ошибка входа. Проверьте email и пароль.", "error");
@@ -74,8 +94,10 @@ registerBtn.addEventListener("click", async () => {
 
   try {
     await firebase.auth().createUserWithEmailAndPassword(email, password);
-    showToast("Аккаунт создан!", "success");
     loginBlock.classList.remove("show");
+    loginOverlay.classList.remove("active");
+    document.body.classList.remove("no-scroll");
+    showToast("Аккаунт создан!", "success");
   } catch {
     showToast("Ошибка при регистрации. Email корректен? Пароль не короче 6 символов?", "error");
   }
@@ -86,6 +108,8 @@ googleLogin.addEventListener("click", async () => {
   try {
     await firebase.auth().signInWithPopup(provider);
     loginBlock.classList.remove("show");
+    loginOverlay.classList.remove("active");
+    document.body.classList.remove("no-scroll");
     showToast("Вы вошли через Google!", "success");
   } catch (error) {
     showToast("Ошибка Google входа: " + error.message, "error");
@@ -123,21 +147,25 @@ async function checkDownloadPermission() {
   const user = firebase.auth().currentUser;
   if (!user) return;
 
-  const snapshot = await db.collection("accessRights")
-    .where("userId", "==", user.uid)
-    .get();
+  try {
+    const doc = await db.collection("accessRights").doc(user.uid).get();
+    const btns = document.querySelectorAll(".card-download");
 
-  const btns = document.querySelectorAll(".card-download");
+    if (!doc.exists) {
+      btns.forEach(btn => {
+        btn.disabled = true;
+        btn.textContent = "Недоступно";
+        btn.classList.add("locked");
+      });
+      return;
+    }
 
-  btns.forEach(btn => {
-    if (snapshot.empty) {
-      btn.disabled = true;
-      btn.textContent = "Недоступно";
-      btn.classList.add("locked");
-    } else {
-      const data = snapshot.docs[0].data();
-      const expiresAt = data.expiresAt.toDate();
-      if (new Date() < expiresAt) {
+    const data = doc.data();
+    const expiresAt = data.expiresAt.toDate();
+    const allowed = new Date() < expiresAt;
+
+    btns.forEach(btn => {
+      if (allowed) {
         btn.disabled = false;
         btn.textContent = "Скачать";
         btn.classList.remove("locked");
@@ -155,8 +183,10 @@ async function checkDownloadPermission() {
         btn.textContent = "Истекло";
         btn.classList.add("locked");
       }
-    }
-  });
+    });
+  } catch (e) {
+    console.error("Ошибка доступа:", e);
+  }
 }
 
 document.querySelectorAll(".subcategory-btn").forEach(btn => {
@@ -173,31 +203,37 @@ async function loadCards(theme, sub) {
   const content = document.getElementById("contentArea");
   content.innerHTML = "";
 
-  const snapshot = await db.collection("images")
-    .where("theme", "==", theme)
-    .where("subcategory", "==", sub)
-    .get();
+  try {
+    const snapshot = await db.collection("images")
+      .where("theme", "==", theme)
+      .where("subcategory", "==", sub)
+      .where("hidden", "==", false)
+      .get();
 
-  if (snapshot.empty) {
-    content.innerHTML = `<p style="color:#aaa; font-size:18px;">Нет загруженных изображений.</p>`;
-    return;
+    if (snapshot.empty) {
+      content.innerHTML = `<p style="color:#aaa; font-size:18px;">Нет загруженных изображений.</p>`;
+      return;
+    }
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const card = document.createElement("div");
+      card.className = "download-card";
+      card.innerHTML = `
+        <img class="card-image" src="${data.url}" alt="UI" />
+        <div class="card-bottom">
+          <span class="card-type">${theme} / ${sub}</span>
+          <button class="card-download">Скачать</button>
+        </div>
+      `;
+      content.appendChild(card);
+    });
+
+    await checkDownloadPermission();
+  } catch (e) {
+    console.error("Ошибка при загрузке карточек:", e);
+    content.innerHTML = `<p style="color:#f66;">Ошибка загрузки данных.</p>`;
   }
-
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    const card = document.createElement("div");
-    card.className = "download-card";
-    card.innerHTML = `
-      <img class="card-image" src="${data.url}" alt="UI" />
-      <div class="card-bottom">
-        <span class="card-type">${theme} / ${sub}</span>
-        <button class="card-download">Скачать</button>
-      </div>
-    `;
-    content.appendChild(card);
-  });
-
-  checkDownloadPermission();
 }
 
 function openProfileCard() {
@@ -259,6 +295,7 @@ document.getElementById("closeProfile").addEventListener("click", () => {
   document.getElementById("profileOverlay").style.display = "none";
 });
 
+// Анимация кнопок
 document.querySelectorAll('.login-form button, .login-form .forgot-password').forEach(btn => {
   let holdTimeout;
   let isHeld = false;
