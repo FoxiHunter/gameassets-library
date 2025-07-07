@@ -117,31 +117,46 @@ googleLogin.addEventListener("click", async () => {
 });
 
 firebase.auth().onAuthStateChanged(async (user) => {
-  if (user) {
-    if (!user.displayName) {
-      const shortId = user.uid.slice(-4);
-      const defaultName = `User${shortId}`;
-      await user.updateProfile({ displayName: defaultName });
-      showToast(`Ник установлен: ${defaultName}`, "success");
-    }
-
-    profileMenu.innerHTML = `
-      <button id="profileOpenBtn">Профиль</button>
-      <button>Доп. информация</button>
-      <button onclick="firebase.auth().signOut(); showToast('Вы вышли', 'success')">Выйти</button>
-    `;
-
-    const avatar = user.photoURL || "img/avamg.png";
-    profileBtn.style.backgroundImage = `url(${avatar})`;
-    profileBtn.style.backgroundSize = "cover";
-    profileBtn.style.backgroundPosition = "center";
-
-    await checkDownloadPermission();
-  } else {
+  if (!user) {
     profileMenu.innerHTML = `<button id="loginButton">Войти / Зарегистрироваться</button>`;
     profileBtn.style.backgroundImage = "";
+    return;
   }
+
+  // Установка ника, если не установлен
+  if (!user.displayName) {
+    const shortId = user.uid.slice(-4);
+    const defaultName = `User${shortId}`;
+    await user.updateProfile({ displayName: defaultName });
+    showToast(`Ник установлен: ${defaultName}`, "success");
+  }
+
+  // ✅ Проверка и создание документа accessRights
+  const docRef = db.collection("accessRights").doc(user.uid);
+  const accessDoc = await docRef.get();
+
+  if (!accessDoc.exists) {
+    await docRef.set({
+      canDownload: false,
+      expiresAt: null
+    });
+  }
+
+  // Отображение меню
+  profileMenu.innerHTML = `
+    <button id="profileOpenBtn">Профиль</button>
+    <button>Доп. информация</button>
+    <button onclick="firebase.auth().signOut(); showToast('Вы вышли', 'success')">Выйти</button>
+  `;
+
+  const avatar = user.photoURL || "img/avamg.png";
+  profileBtn.style.backgroundImage = `url(${avatar})`;
+  profileBtn.style.backgroundSize = "cover";
+  profileBtn.style.backgroundPosition = "center";
+
+  await checkDownloadPermission();
 });
+
 
 async function checkDownloadPermission() {
   const user = firebase.auth().currentUser;
@@ -161,15 +176,17 @@ async function checkDownloadPermission() {
     }
 
     const data = doc.data();
-    const expiresAt = data.expiresAt.toDate();
-    const allowed = new Date() < expiresAt;
+    const canDownload = data.canDownload === true;
+    const expireAt = data.expireAt?.toDate?.();
+
+    const isValid = canDownload && expireAt && new Date() < expireAt;
 
     btns.forEach(btn => {
-      if (allowed) {
+      if (isValid) {
         btn.disabled = false;
         btn.textContent = "Скачать";
         btn.classList.remove("locked");
-        btn.addEventListener("click", () => {
+        btn.onclick = () => {
           const imageUrl = btn.closest(".download-card").querySelector(".card-image").src;
           const link = document.createElement("a");
           link.href = imageUrl;
@@ -177,17 +194,21 @@ async function checkDownloadPermission() {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-        });
+        };
       } else {
         btn.disabled = true;
-        btn.textContent = "Истекло";
+        btn.textContent = canDownload ? "Истекло" : "Недоступно";
         btn.classList.add("locked");
       }
     });
+
   } catch (e) {
     console.error("Ошибка доступа:", e);
   }
 }
+
+
+
 
 document.querySelectorAll(".subcategory-btn").forEach(btn => {
   btn.addEventListener("click", () => {
