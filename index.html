@@ -8,93 +8,108 @@
 </head>
 <body>
 
-  <header>
-    <div class="logo">
-      <a href="#">Логотип</a>
-    </div>
-    <nav class="main-nav">
-      <button class="category-btn" data-category="horror">Хоррор</button>
-      <button class="category-btn" data-category="fantasy">Фэнтези</button>
-      <button class="category-btn" data-category="sci-fi">Сай-Фай</button>
-    </nav>
-  </header>
+<header>
+  <div class="logo">
+    <a href="#">Логотип</a>
+  </div>
 
-  <div id="profilePanel" class="profile-panel">
+  <nav class="main-nav">
+    <div class="category-bar">
+      <button class="category-btn" data-theme="horror">horror</button>
+      <button class="category-btn" data-theme="futuristic">futuristic</button>
+      <button class="category-btn" data-theme="fantasy">fantasy</button>
+      <button class="category-btn" data-theme="minimal">minimal</button>
+      <button class="category-btn" data-theme="military">military</button>
+    </div>
+  </nav>
+
+  <div class="profile-panel">
     <div class="profile-btn" id="profileBtn"></div>
     <div class="profile-menu" id="profileMenu">
       <button id="loginButton">Войти / Зарегистрироваться</button>
     </div>
   </div>
+</header>
 
-  <main id="contentArea"></main>
+<!-- ⬇ Popup вынесен ВНЕ header/nav -->
+<div class="subcategory-popup" id="subcategoryPopup">
+  <button class="subcategory-btn" data-sub="backgrounds">backgrounds</button>
+  <button class="subcategory-btn" data-sub="buttons">buttons</button>
+  <button class="subcategory-btn" data-sub="icons">icons</button>
+  <button class="subcategory-btn" data-sub="labels">labels</button>
+  <button class="subcategory-btn" data-sub="bars">bars</button>
+  <button class="subcategory-btn" data-sub="notifications">notifications</button>
+</div>
 
-  <section id="login">
-    <div class="login-form">
-      <h2>Вход</h2>
-      <form id="loginForm">
-        <input type="email" id="username" placeholder="Email" required>
-        <input type="password" id="password" placeholder="Пароль" required>
-        <button type="button" class="btn" id="googleLogin">Войти через Google</button>
-        <div class="btn-group">
-          <button type="submit" class="btn">Войти в систему</button>
-          <button type="button" class="btn" id="registerBtn">Зарегистрироваться</button>
-        </div>
-        <button type="button" class="forgot-password">Забыли пароль?</button>
-      </form>
+<main id="contentArea"></main>
+
+<section id="login">
+  <div class="login-form">
+    <h2>Вход</h2>
+    <form id="loginForm">
+      <input type="email" id="username" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Пароль" required>
+      <button type="button" class="btn" id="googleLogin">Войти через Google</button>
+      <div class="btn-group">
+        <button type="submit" class="btn">Войти в систему</button>
+        <button type="button" class="btn" id="registerBtn">Зарегистрироваться</button>
+      </div>
+      <button type="button" class="forgot-password">Забыли пароль?</button>
+    </form>
+  </div>
+</section>
+
+<div id="notifier"></div>
+
+<div class="overlay" id="profileOverlay" style="display: none;">
+  <div class="profile-card">
+    <div class="profile-avatar-wrapper">
+      <div class="profile-avatar">
+        <img src="img/avamg.png" alt="Аватар" id="profileImage">
+      </div>
     </div>
-  </section>
 
-  <div id="notifier"></div>
-
-  <div class="overlay" id="profileOverlay" style="display: none;">
-    <div class="profile-card">
-      <div class="profile-avatar-wrapper">
-        <div class="profile-avatar">
-          <img src="img/avamg.png" alt="Аватар" id="profileImage">
-        </div>
+    <div class="profile-info">
+      <div class="profile-row">
+        <input type="text" id="nicknameInput" placeholder="Введите ник">
       </div>
 
-      <div class="profile-info">
-        <div class="profile-row">
-          <input type="text" id="nicknameInput" placeholder="Введите ник">
-        </div>
-
-        <div class="profile-row">
-          <input type="text" id="userIdInput" placeholder="ID пользователя" readonly>
-          <button id="copyIdBtn">📋</button>
-        </div>
-
-        <div class="downloads-block">
-          тут появятся скаченные вами изображения.
-        </div>
+      <div class="profile-row">
+        <input type="text" id="userIdInput" placeholder="ID пользователя" readonly>
+        <button id="copyIdBtn">📋</button>
       </div>
 
-      <div class="profile-actions">
-        <button id="closeProfile">Закрыть</button>
+      <div class="downloads-block">
+        тут появятся скаченные вами изображения.
       </div>
+    </div>
+
+    <div class="profile-actions">
+      <button id="closeProfile">Закрыть</button>
     </div>
   </div>
+</div>
 
-  <footer>
-    <p>&copy; 2025 Сайт для скачивания UI/GUI картинок. Все права защищены.</p>
-  </footer>
+<footer>
+  <p>&copy; 2025 Сайт для скачивания UI/GUI картинок. Все права защищены.</p>
+</footer>
 
-  <script>
-    window.FIREBASE_CONFIG = {
-      apiKey: "AIzaSyB2LQsJuE0-vqD80Rcqqpav-jxlapYrcpg",
-      authDomain: "gameassets-library-f1f0d.firebaseapp.com",
-      projectId: "gameassets-library-f1f0d",
-      storageBucket: "gameassets-library-f1f0d.appspot.com",
-      messagingSenderId: "33160635214",
-      appId: "1:33160635214:web:a7b6873dae71dc3e73f41f",
-      measurementId: "G-MFQLQ60PQV"
-    };
-  </script>
+<script>
+  window.FIREBASE_CONFIG = {
+    apiKey: "AIzaSyB2LQsJuE0-vqD80Rcqqpav-jxlapYrcpg",
+    authDomain: "gameassets-library-f1f0d.firebaseapp.com",
+    projectId: "gameassets-library-f1f0d",
+    storageBucket: "gameassets-library-f1f0d.appspot.com",
+    messagingSenderId: "33160635214",
+    appId: "1:33160635214:web:a7b6873dae71dc3e73f41f",
+    measurementId: "G-MFQLQ60PQV"
+  };
+</script>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="js/main.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="js/main.js"></script>
 
 </body>
 </html>

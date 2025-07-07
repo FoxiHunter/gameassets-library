@@ -22,17 +22,35 @@ profileBtn.addEventListener("click", () => {
   profileMenu.style.display = profileMenu.style.display === "block" ? "none" : "block";
 });
 
+const subcategoryPopup = document.getElementById("subcategoryPopup");
+let currentTheme = null;
+
 document.addEventListener("click", (e) => {
-  if (e.target.id === "loginButton") {
-    loginBlock.classList.toggle("show");
-  }
+  const isCategoryBtn = e.target.classList.contains("category-btn");
+  const clickedTheme = isCategoryBtn ? (e.target.dataset.theme || e.target.dataset.category) : null;
+  const clickedInsidePopup = e.target.closest("#subcategoryPopup");
 
-  if (e.target.id === "profileOpenBtn") {
-    openProfileCard();
-  }
+  if (isCategoryBtn) {
+    const rect = e.target.getBoundingClientRect();
 
-  if (e.target.classList.contains("category-btn")) {
-    loadSubclasses(e.target.dataset.category);
+    if (clickedTheme === currentTheme && subcategoryPopup.classList.contains("animate")) {
+      subcategoryPopup.classList.remove("animate");
+      currentTheme = null;
+      return;
+    }
+
+    subcategoryPopup.classList.remove("animate");
+    void subcategoryPopup.offsetWidth;
+
+    subcategoryPopup.setAttribute("data-theme", clickedTheme);
+    subcategoryPopup.style.top = `${rect.bottom + window.scrollY}px`;
+    subcategoryPopup.style.left = `${rect.left + window.scrollX}px`;
+
+    subcategoryPopup.classList.add("animate");
+    currentTheme = clickedTheme;
+  } else if (!clickedInsidePopup) {
+    subcategoryPopup.classList.remove("animate");
+    currentTheme = null;
   }
 });
 
@@ -95,7 +113,6 @@ firebase.auth().onAuthStateChanged(async (user) => {
     profileBtn.style.backgroundPosition = "center";
 
     await checkDownloadPermission();
-    await loadCategories();
   } else {
     profileMenu.innerHTML = `<button id="loginButton">Войти / Зарегистрироваться</button>`;
     profileBtn.style.backgroundImage = "";
@@ -142,39 +159,45 @@ async function checkDownloadPermission() {
   });
 }
 
-async function loadCategories() {
-  const container = document.createElement("div");
-  container.className = "category-nav";
-
-  const categories = ["Хоррор", "Фэнтези", "Футуризм"];
-  categories.forEach(name => {
-    const btn = document.createElement("button");
-    btn.className = "category-btn";
-    btn.dataset.category = name;
-    btn.textContent = name;
-    container.appendChild(btn);
+document.querySelectorAll(".subcategory-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const sub = btn.dataset.sub;
+    const theme = subcategoryPopup.getAttribute("data-theme");
+    loadCards(theme, sub);
+    subcategoryPopup.classList.remove("animate");
+    currentTheme = null;
   });
+});
 
-  document.body.insertBefore(container, document.querySelector(".download-card"));
-}
+async function loadCards(theme, sub) {
+  const content = document.getElementById("contentArea");
+  content.innerHTML = "";
 
-async function loadSubclasses(category) {
-  const subclassContainer = document.querySelector(".card-grid") || document.createElement("div");
-  subclassContainer.className = "card-grid";
-  subclassContainer.innerHTML = "";
+  const snapshot = await db.collection("images")
+    .where("theme", "==", theme)
+    .where("subcategory", "==", sub)
+    .get();
 
-  const subclasses = ["Индикаторы", "Фоны", "NN"];
-  subclasses.forEach(name => {
-    const block = document.createElement("div");
-    block.className = "card-subclass";
-    block.innerHTML = `
-      <div class="subclass-title">${name}</div>
-      <div class="card-stack"></div>
+  if (snapshot.empty) {
+    content.innerHTML = `<p style="color:#aaa; font-size:18px;">Нет загруженных изображений.</p>`;
+    return;
+  }
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    const card = document.createElement("div");
+    card.className = "download-card";
+    card.innerHTML = `
+      <img class="card-image" src="${data.url}" alt="UI" />
+      <div class="card-bottom">
+        <span class="card-type">${theme} / ${sub}</span>
+        <button class="card-download">Скачать</button>
+      </div>
     `;
-    subclassContainer.appendChild(block);
+    content.appendChild(card);
   });
 
-  document.body.appendChild(subclassContainer);
+  checkDownloadPermission();
 }
 
 function openProfileCard() {
