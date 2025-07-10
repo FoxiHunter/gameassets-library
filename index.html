@@ -8,40 +8,6 @@
 </head>
 <body>
 
-<header>
-  <div class="logo">
-    <a href="#">Логотип</a>
-  </div>
-
-  <nav class="main-nav">
-    <div class="category-bar">
-      <button class="category-btn" data-theme="horror">horror</button>
-      <button class="category-btn" data-theme="futuristic">futuristic</button>
-      <button class="category-btn" data-theme="fantasy">fantasy</button>
-      <button class="category-btn" data-theme="minimal">minimal</button>
-      <button class="category-btn" data-theme="military">military</button>
-    </div>
-  </nav>
-
-  <div class="profile-panel">
-    <div class="profile-btn" id="profileBtn"></div>
-    <div class="profile-menu" id="profileMenu">
-      <button id="loginButton">Войти / Зарегистрироваться</button>
-    </div>
-  </div>
-</header>
-
-<div class="subcategory-popup" id="subcategoryPopup">
-  <button class="subcategory-btn" data-sub="backgrounds">backgrounds</button>
-  <button class="subcategory-btn" data-sub="buttons">buttons</button>
-  <button class="subcategory-btn" data-sub="icons">icons</button>
-  <button class="subcategory-btn" data-sub="labels">labels</button>
-  <button class="subcategory-btn" data-sub="bars">bars</button>
-  <button class="subcategory-btn" data-sub="notifications">notifications</button>
-</div>
-
-<main id="contentArea"></main>
-
 <section id="login">
   <div class="login-form">
     <h2>Вход</h2>
@@ -58,43 +24,97 @@
   </div>
 </section>
 
-<div id="notifier"></div>
+<div class="login-overlay" id="loginOverlay"></div>
 
-<div class="overlay" id="profileOverlay" style="display: none;">
-  <div class="profile-card">
-    <div class="profile-avatar-wrapper">
-      <div class="profile-avatar">
-        <img src="img/avamg.png" alt="Аватар" id="profileImage">
-      </div>
+<div class="ui-scale-wrapper">
+
+  <header>
+    <div class="logo">
+      <a href="#">Логотип</a>
     </div>
 
-    <div class="profile-info">
-      <div class="profile-row">
-        <input type="text" id="nicknameInput" placeholder="Введите ник">
+    <nav class="main-nav">
+      <div class="category-bar">
+        <button class="category-btn" data-theme="horror">horror</button>
+        <button class="category-btn" data-theme="futuristic">futuristic</button>
+        <button class="category-btn" data-theme="fantasy">fantasy</button>
+        <button class="category-btn" data-theme="minimal">minimal</button>
+        <button class="category-btn" data-theme="military">military</button>
       </div>
+    </nav>
 
-      <div class="profile-row">
-        <input type="text" id="userIdInput" placeholder="ID пользователя" readonly>
-        <button id="copyIdBtn">📋</button>
-      </div>
-
-      <div class="downloads-block">
-        тут появятся скаченные вами изображения.
+    <div class="profile-panel">
+      <div class="profile-btn" id="profileBtn"></div>
+      <div class="profile-menu" id="profileMenu">
+        <button id="loginButton">Войти / Зарегистрироваться</button>
       </div>
     </div>
+  </header>
 
-    <div class="profile-actions">
-      <button id="closeProfile">Закрыть</button>
+  <div class="subcategory-popup" id="subcategoryPopup">
+    <button class="subcategory-btn" data-sub="backgrounds">backgrounds</button>
+    <button class="subcategory-btn" data-sub="buttons">buttons</button>
+    <button class="subcategory-btn" data-sub="icons">icons</button>
+    <button class="subcategory-btn" data-sub="labels">labels</button>
+    <button class="subcategory-btn" data-sub="bars">bars</button>
+    <button class="subcategory-btn" data-sub="notifications">notifications</button>
+  </div>
+
+  <main id="contentArea" class="container"></main>
+
+  <div id="notifier"></div>
+
+  <div class="overlay" id="profileOverlay" style="display: none;">
+    <div class="profile-card">
+      <div class="profile-avatar-wrapper">
+        <div class="profile-avatar">
+          <img src="img/avamg.png" alt="Аватар" id="profileImage">
+        </div>
+      </div>
+
+      <div class="profile-info">
+        <div class="profile-row">
+          <input type="text" id="nicknameInput" placeholder="Введите ник">
+        </div>
+
+        <div class="profile-row">
+          <input type="text" id="userIdInput" placeholder="ID пользователя" readonly>
+          <button id="copyIdBtn">📋</button>
+        </div>
+
+        <div class="downloads-block">
+          Здесь будут понравившиеся вам карточки.
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <button id="closeProfile">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="privacyOverlay" class="overlay">
+    <div class="privacy-popup">
+      <h2>Политика конфиденциальности</h2>
+      <p>
+        Вы соглашаетесь не распространять, не передавать третьим лицам и не перепродавать ресурсы, загруженные с данного сайта.
+        В случае нарушения условий пользователь обязуется возместить причинённый ущерб.
+      </p>
+      <p style="margin-top: 10px;">
+        С полным текстом политики можно ознакомиться на странице  
+        <a href="Allhtml\policy.html" target="_blank" style="color:#aaccff; text-decoration:underline;">Дополнительная информация</a>.
+      </p>
+      <div class="privacy-actions">
+        <button id="acceptPrivacy">Принимаю</button>
+        <button id="declinePrivacy">Отклонить</button>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="login-overlay" id="loginOverlay"></div>
-
-
-<footer>
-  <p>&copy; 2025 Сайт для скачивания UI/GUI картинок. Все права защищены.</p>
-</footer>
+  <footer>
+    <p>&copy; 2025 Сайт для скачивания UI/GUI картинок. Все права защищены.</p>
+  </footer>
 
 <script>
   window.FIREBASE_CONFIG = {
@@ -107,7 +127,6 @@
     measurementId: "G-MFQLQ60PQV"
   };
 </script>
-
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
