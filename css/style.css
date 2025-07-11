@@ -38,16 +38,16 @@ header {
 }
 
 
-/* общий адаптивный стиль */
 header .logo a {
   display: block;
 }
+
 header .logo a img {
   display: block;
-  width: 20vw;
-  max-width: 140px;
+  width: clamp(80px, 15vw, 140px);
   height: auto;
 }
+
 
 @media (max-width: 768px) {
   header .logo a img {
