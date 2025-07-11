@@ -446,12 +446,29 @@ if (!accessSnap.exists) {
   await accessRef.set({ canDownload: false, expiresAt: null });
 }
 
+let currentAccess = false;
+accessRef.onSnapshot(doc => {
+  const data = doc.data() || {};
+  const now = new Date();
+  let expires = data.expireAt;
+
+  if (expires?.toDate) expires = expires.toDate();
+  else if (typeof expires === 'string' || expires instanceof Date)
+    expires = new Date(expires);
+
+  const hasAccess = data.canDownload === true && expires && now < expires && !data.frozen;
+
+  if (hasAccess !== currentAccess) {
+    currentAccess = hasAccess;
+    loadImages();
+  }
+});
+
+
 
     profileBtn.style.backgroundImage = `url(${user.photoURL || 'img/avamg.png'})`;
     profileBtn.style.backgroundSize  = 'cover';
     profileBtn.style.backgroundPosition = 'center';
-
-    await loadImages();
   };
 
   const checkPrivacyAgreement = async user => {
