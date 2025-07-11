@@ -31,12 +31,11 @@
 
   <header>
 
-<div class="logo">
-  <a href="/">
-    <img src="img/logo.png" alt="Логотип">
-  </a>
-</div>
-
+    <div class="logo">
+      <a href="/">
+        <img src="img/logo.png" alt="Логотип">
+      </a>
+    </div>
 
     <nav class="main-nav">
       <div class="category-bar">
@@ -50,9 +49,6 @@
 
     <div class="profile-panel">
       <div class="profile-btn" id="profileBtn"></div>
-      <div class="profile-menu" id="profileMenu">
-        <button id="loginButton">Войти / Зарегистрироваться</button>
-      </div>
     </div>
   </header>
 
@@ -107,7 +103,7 @@
       </p>
       <p style="margin-top: 10px;">
         С полным текстом политики можно ознакомиться на странице  
-      <a href="Allhtml/policy.html" target="_blank" style="color:#aaccff; text-decoration:underline;">Дополнительная информация</a>
+        <a href="Allhtml/policy.html" target="_blank" style="color:#aaccff; text-decoration:underline;">Дополнительная информация</a>
       </p>
       <div class="privacy-actions">
         <button id="acceptPrivacy">Принимаю</button>
@@ -117,9 +113,21 @@
   </div>
 </div>
 
-  <footer>
-    <p>&copy; 2025 Сайт для скачивания UI/GUI картинок. Все права защищены.</p>
-  </footer>
+<div class="profile-menu" id="profileMenu">
+  <button id="loginButton">Войти / Зарегистрироваться</button>
+</div>
+
+<div id="hoverPreview" style="display: none;">
+  <img src="" alt="Превью" />
+</div>
+<div id="imageModal" class="image-modal">
+  <span id="closeModal">&times;</span>
+  <img id="modalImage" src="" alt="Fullscreen Preview">
+</div>
+
+<footer>
+  <p>&copy; 2025 Сайт для скачивания UI/GUI картинок. Все права защищены.</p>
+</footer>
 
 <script>
   window.FIREBASE_CONFIG = {

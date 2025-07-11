@@ -123,6 +123,23 @@ const getAccess = async uid => {
               <button class='card-download'>Скачать</button>
             </div>
           </div>`;
+         const img = card.querySelector('.card-image');
+             img.addEventListener('click', () => {
+                const modal = document.getElementById('imageModal');
+                   const modalImg = document.getElementById('modalImage');
+              modalImg.src = data.url;
+              modal.style.display = 'flex';
+          });
+
+            img.addEventListener('mouseenter', () => {
+             const preview = document.getElementById('hoverPreview');
+             preview.querySelector('img').src = data.url;
+              preview.style.display = 'block';
+            });
+
+img.addEventListener('mouseleave', () => {
+  document.getElementById('hoverPreview').style.display = 'none';
+});
 
         card.querySelector('.card-fav')
             .addEventListener('click', debounce(() => toggleFavorite(doc.id, card, data), 200));
@@ -209,10 +226,13 @@ const getAccess = async uid => {
         loginOverlay.classList.add('active');
         document.body.classList.add('no-scroll');
       }
-      if (e.target.id === 'profileBtn') {
-        profileMenu.style.display =
-          profileMenu.style.display === 'block' ? 'none' : 'block';
-      }
+    if (e.target.id === 'profileBtn') {
+    profileMenu.style.display =
+    profileMenu.style.display === 'block' ? 'none' : 'block';
+  } else if (e.target.closest('#profileMenu')) {
+  profileMenu.style.display = 'none';
+}
+
       if (e.target.id === 'moreInfoBtn')
         window.open('Allhtml/policy.html', '_self');
     });
@@ -295,6 +315,7 @@ const renderProfileCard = async user => {
   isProfileLoading = true;
 
   const overlay = document.getElementById('profileOverlay');
+  
   overlay.style.display = 'flex';
 
   const image = document.getElementById('profileImage');
@@ -317,24 +338,26 @@ const renderProfileCard = async user => {
 
     image.src = user.photoURL || 'img/avamg.png';
 
-const [accessDoc, favSnap] = await Promise.all([
-  db.collection('accessRights').doc(user.uid).get(),
-  db.collection('users').doc(user.uid).collection('favorites').get()
-]);
+const accessPromise = db.collection('accessRights').doc(user.uid).get();
+const favPromise    = db.collection('users').doc(user.uid).collection('favorites').get();
+
+const [accessDoc, favSnap] = await Promise.all([accessPromise, favPromise]);
 
 const accessData = accessDoc.data() || {};
-const expiresRaw = accessData.expireAt;
+const now = new Date();
 let expiresDate = null;
 
-if (expiresRaw?.toDate) {
-  expiresDate = expiresRaw.toDate();
-} else if (typeof expiresRaw === 'string' || expiresRaw instanceof Date) {
-  expiresDate = new Date(expiresRaw);
+if (accessData.expireAt?.toDate) {
+  expiresDate = accessData.expireAt.toDate();
+} else if (typeof accessData.expireAt === 'string' || accessData.expireAt instanceof Date) {
+  expiresDate = new Date(accessData.expireAt);
 }
+
+const hasAccess = accessData.canDownload === true && expiresDate && now < expiresDate && !accessData.frozen;
+
 
 let expiresText;
 console.log("accessData:", accessData);
-console.log("expiresRaw:", expiresRaw);
 console.log("expiresDate:", expiresDate);
 console.log("now:", new Date());
 console.log("isFrozen:", accessData.frozen);
@@ -365,7 +388,10 @@ if (expiresText) {
 
 const block = document.querySelector('.downloads-block');
 block.innerHTML = '';
-if (favSnap.empty) {
+
+if (!hasAccess) {
+  block.innerHTML = `<p class='error'>🔒 До момента активации аккаунта избранные изображения будут скрыты.</p>`;
+} else if (favSnap.empty) {
   block.innerHTML = "<p class='empty'>Нет избранного.</p>";
 } else {
   favSnap.docs.forEach(d => {
@@ -387,6 +413,7 @@ if (favSnap.empty) {
     block.appendChild(favCard);
   });
 }
+
 
 isProfileLoading = false;
 };
@@ -475,5 +502,41 @@ if (!accessSnap.exists) {
     if (agreed) await initAfterLogin(user);
   });
 
-  document.addEventListener('DOMContentLoaded', initUI);
+document.addEventListener('DOMContentLoaded', () => {
+  initUI();
+
+  document.getElementById('closeModal').addEventListener('click', () => {
+    document.getElementById('imageModal').style.display = 'none';
+  });
+
+  document.getElementById('imageModal').addEventListener('click', e => {
+    if (e.target.id === 'imageModal') {
+      e.currentTarget.style.display = 'none';
+    }
+  });
+});
+
+document.addEventListener('mousemove', e => {
+  const preview = document.getElementById('hoverPreview');
+  if (preview.style.display !== 'none') {
+    const previewWidth  = preview.offsetWidth;
+    const previewHeight = preview.offsetHeight;
+    const margin = 20;
+
+    let left = e.pageX + margin;
+    let top  = e.pageY + margin;
+
+    if (left + previewWidth > window.innerWidth) {
+      left = e.pageX - previewWidth - margin;
+    }
+    if (top + previewHeight > window.innerHeight) {
+      top = e.pageY - previewHeight - margin;
+    }
+
+    preview.style.left = `${left}px`;
+    preview.style.top  = `${top}px`;
+  }
+});
+
+
 })();
