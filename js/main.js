@@ -290,26 +290,30 @@ const getAccess = async uid => {
       document.getElementById('profileOverlay').style.display = 'none';
     });
   };
+const renderProfileCard = async user => {
+  if (isProfileLoading) return;
+  isProfileLoading = true;
 
-  const renderProfileCard = async user => {
-    if (isProfileLoading) return;
-    isProfileLoading = true;
+  const overlay = document.getElementById('profileOverlay');
+  overlay.style.display = 'flex';
 
-    const overlay = document.getElementById('profileOverlay');
-    overlay.style.display = 'flex';
+  const image = document.getElementById('profileImage');
+  const nickInput = document.getElementById('nicknameInput').cloneNode(true);
+  document.getElementById('nicknameInput').replaceWith(nickInput);
+  nickInput.value = user.displayName;
+  nickInput.addEventListener('change', () =>
+    user.updateProfile({ displayName: nickInput.value }).then(() => showToast('Ник обновлён!'))
+  );
 
-    const image = document.getElementById('profileImage');
-    const nickInput = document.getElementById('nicknameInput').cloneNode(true);
-    document.getElementById('nicknameInput').replaceWith(nickInput);
-    nickInput.value = user.displayName;
-    nickInput.addEventListener('change', () =>
-      user.updateProfile({ displayName: nickInput.value }).then(() => showToast('Ник обновлён!'))
-    );
+  document.getElementById('userIdInput').value = user.uid;
 
-    document.getElementById('userIdInput').value = user.uid;
-    document.getElementById('copyIdBtn').addEventListener('click', () =>
-      navigator.clipboard.writeText(user.uid).then(() => showToast('ID скопирован!'))
-    );
+  const oldCopyBtn = document.getElementById('copyIdBtn');
+  const newCopyBtn = oldCopyBtn.cloneNode(true);
+  oldCopyBtn.replaceWith(newCopyBtn);
+  newCopyBtn.addEventListener('click', () =>
+    navigator.clipboard.writeText(user.uid).then(() => showToast('ID скопирован!'))
+  );
+
 
     image.src = user.photoURL || 'img/avamg.png';
 
@@ -329,6 +333,12 @@ if (expiresRaw?.toDate) {
 }
 
 let expiresText;
+console.log("accessData:", accessData);
+console.log("expiresRaw:", expiresRaw);
+console.log("expiresDate:", expiresDate);
+console.log("now:", new Date());
+console.log("isFrozen:", accessData.frozen);
+
 if (accessData.canDownload === true && expiresDate && new Date() < expiresDate && !accessData.frozen) {
   const datePart = expiresDate.toLocaleDateString('ru-RU', {
     day: '2-digit', month: '2-digit', year: 'numeric'
