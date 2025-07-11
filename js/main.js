@@ -467,10 +467,8 @@ accessRef.onSnapshot(doc => {
 
   const hasAccess = data.canDownload === true && expires && now < expires && !data.frozen;
 
-  if (hasAccess !== currentAccess) {
-    currentAccess = hasAccess;
-    loadImages();
-  }
+currentAccess = hasAccess;
+loadImages();
 });
 
 
