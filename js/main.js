@@ -446,7 +446,8 @@ if (!accessSnap.exists) {
   await accessRef.set({ canDownload: false, expiresAt: null });
 }
 
-let currentAccess = false;
+let currentAccess = null;
+
 accessRef.onSnapshot(doc => {
   const data = doc.data() || {};
   const now = new Date();
@@ -463,6 +464,7 @@ accessRef.onSnapshot(doc => {
     loadImages();
   }
 });
+
 
 
 
@@ -508,12 +510,13 @@ accessRef.onSnapshot(doc => {
     currentUser = user;
     if (user) closeLoginModal();
 
-    if (!user) {
-      profileMenu.innerHTML = "<button id='loginButton'>Войти / Зарегистрироваться</button>";
-      profileBtn.style.backgroundImage = '';
-      await loadImages();
-      return;
-    }
+if (!user) {
+  profileMenu.innerHTML = "<button id='loginButton'>Войти / Зарегистрироваться</button>";
+  profileBtn.style.backgroundImage = '';
+  contentArea.innerHTML = `<p class='error'>Необходимо войти, чтобы получить доступ.</p>`;
+  return;
+}
+
 
     const agreed = await checkPrivacyAgreement(user);
     if (agreed) await initAfterLogin(user);
