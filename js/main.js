@@ -40,17 +40,7 @@
     document.body.classList.remove('no-scroll');
   };
 
-const getAccess = async uid => {
-  const doc = await db.collection('accessRights').doc(uid).get();
-  const data = doc.data() || {};
-  const now = new Date();
-  let expires = data.expireAt;
-  if (expires?.toDate) expires = expires.toDate();
-  else if (typeof expires === 'string' || expires instanceof Date)
-    expires = new Date(expires);
 
-  return data.canDownload === true && expires && now < expires && !data.frozen;
-};
 
   const getFavorites = async uid => {
     const snap = await db.collection('users').doc(uid).collection('favorites').get();
@@ -69,28 +59,45 @@ const getAccess = async uid => {
     contentArea.innerHTML = '';
 
     try {
-      const user = currentUser;
-      const [hasAccess, favorites] = await Promise.all([
-        user ? getAccess(user.uid) : Promise.resolve(false),
-        user ? getFavorites(user.uid) : Promise.resolve(new Set())
-      ]);
+let hasAccess = false;
+let favorites = new Set();
 
-      if (!user) {
+if (currentUser) {
+  const [accessSnap, favSnap] = await Promise.all([
+    db.collection('accessRights').doc(currentUser.uid).get(),
+    db.collection('users').doc(currentUser.uid).collection('favorites').get()
+  ]);
+
+  const accessData = accessSnap.data() || {};
+  let expires = accessData.expireAt;
+  if (expires?.toDate) expires = expires.toDate();
+  else if (typeof expires === 'string' || expires instanceof Date) expires = new Date(expires);
+
+  const now = new Date();
+  hasAccess = accessData.canDownload === true && expires && now < expires && !accessData.frozen;
+
+  favorites = new Set(favSnap.docs.map(d => d.id));
+}
+
+
+
+      if (!currentUser) {
         contentArea.innerHTML = `<p class='error'>Необходимо зарегистрироваться, чтобы получить доступ.</p>`;
         return;
       }
 
-     if (!hasAccess) {
-       const accessDoc = await db.collection('accessRights').doc(user.uid).get();
-        const accessData = accessDoc.data() || {};
+if (!hasAccess) {
+  const accessDoc = await db.collection('accessRights').doc(currentUser.uid).get();
+  const accessData = accessDoc.data() || {};
 
-             if (accessData.frozen) {
-                contentArea.innerHTML = `<p class='error'>Ваш аккаунт заморожен. Обратитесь: <a href="https://funpay.com/users/5299159/" target="_blank">сюда</a>.</p>`;
-               } else {
-             contentArea.innerHTML = `<p class='error'>Необходимо активировать аккаунт: <a href="https://funpay.com/users/5299159/" target="_blank">сделать это тут</a>.</p>`;
-             }
-              return;
-         }
+  if (accessData.frozen) {
+    contentArea.innerHTML = `<p class='error'>Ваш аккаунт заморожен. Обратитесь: <a href="https://funpay.com/users/5299159/" target="_blank">сюда</a>.</p>`;
+  } else {
+    contentArea.innerHTML = `<p class='error'>Необходимо активировать аккаунт: <a href="https://funpay.com/users/5299159/" target="_blank">сделать это тут</a>.</p>`;
+  }
+  return;
+}
+
 
 
       let query = db.collection('images').where('visible', '==', true);
@@ -441,10 +448,10 @@ isProfileLoading = false;
 
 const accessRef = db.collection('accessRights').doc(user.uid);
 const accessSnap = await accessRef.get();
-
 if (!accessSnap.exists) {
-  await accessRef.set({ canDownload: false, expireAt: null, frozen: false });
+  await accessRef.set({ canDownload: false, expireAt: null, frozen: false }, { merge: true });
 }
+
 
 
 let currentAccess = null;
@@ -493,6 +500,7 @@ accessRef.onSnapshot(doc => {
         document.body.classList.remove('no-scroll');
         showToast('Политика принята');
         await initAfterLogin(user);
+        await loadImages();
       };
 
       document.getElementById('declinePrivacy').onclick = async () => {
