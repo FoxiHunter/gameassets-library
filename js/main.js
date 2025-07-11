@@ -74,7 +74,7 @@ if (currentUser) {
   else if (typeof expires === 'string' || expires instanceof Date) expires = new Date(expires);
 
   const now = new Date();
-  hasAccess = accessData.canDownload === true && expires && now < expires && !accessData.frozen;
+hasAccess = accessData.canDownload === true && expires && now < expires;
 
   favorites = new Set(favSnap.docs.map(d => d.id));
 }
@@ -91,8 +91,6 @@ if (!hasAccess) {
   const accessData = accessDoc.data() || {};
 
   if (accessData.frozen) {
-    contentArea.innerHTML = `<p class='error'>Ваш аккаунт заморожен. Обратитесь: <a href="https://funpay.com/users/5299159/" target="_blank">сюда</a>.</p>`;
-  } else {
     contentArea.innerHTML = `<p class='error'>Необходимо активировать аккаунт: <a href="https://funpay.com/users/5299159/" target="_blank">сделать это тут</a>.</p>`;
   }
   return;
@@ -360,7 +358,7 @@ if (accessData.expireAt?.toDate) {
   expiresDate = new Date(accessData.expireAt);
 }
 
-const hasAccess = accessData.canDownload === true && expiresDate && now < expiresDate && !accessData.frozen;
+const hasAccess = accessData.canDownload === true && expiresDate && now < expiresDate;
 
 
 let expiresText;
@@ -449,7 +447,7 @@ isProfileLoading = false;
 const accessRef = db.collection('accessRights').doc(user.uid);
 const accessSnap = await accessRef.get();
 if (!accessSnap.exists) {
-  await accessRef.set({ canDownload: false, expireAt: null, frozen: false }, { merge: true });
+await accessRef.set({ canDownload: false, expireAt: null }, { merge: true });
 }
 
 
@@ -465,7 +463,7 @@ accessRef.onSnapshot(doc => {
   else if (typeof expires === 'string' || expires instanceof Date)
     expires = new Date(expires);
 
-  const hasAccess = data.canDownload === true && expires && now < expires && !data.frozen;
+  const hasAccess = data.canDownload === true && expires && now < expires;
 
 currentAccess = hasAccess;
 loadImages();
