@@ -38,13 +38,29 @@ header {
 }
 
 
+/* общий адаптивный стиль */
 header .logo a {
-    color: #e6e6ff;
-    font-size: 28px;
-    text-decoration: none;
-    font-weight: bold;
-    text-shadow: 0 0 8px rgba(160, 120, 255, 0.5);
+  display: block;
 }
+header .logo a img {
+  display: block;
+  width: 20vw;
+  max-width: 140px;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  header .logo a img {
+    max-width: 120px;
+  }
+}
+@media (max-width: 480px) {
+  header .logo a img {
+    max-width: 100px;
+  }
+}
+
+
 
 .profile-panel {
   position: absolute;
@@ -785,7 +801,7 @@ footer p {
 .ui-card,
 .download-card {
   max-width: 260px;
-  width: clamp(200px, 45vw, 260px);
+  width: clamp(200px, 45vw, 200px);
   box-sizing: border-box;
   background: rgba(30, 25, 45, 0.9);
   border: 2px solid #a97cff;
@@ -1053,6 +1069,7 @@ footer p {
   box-shadow: 0 0 20px rgba(255, 153, 0, 0.4);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   position: relative;
+    margin-bottom: 16px;
 }
 
 .ui-card:hover {
