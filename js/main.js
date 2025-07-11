@@ -443,8 +443,9 @@ const accessRef = db.collection('accessRights').doc(user.uid);
 const accessSnap = await accessRef.get();
 
 if (!accessSnap.exists) {
-  await accessRef.set({ canDownload: false, expiresAt: null });
+  await accessRef.set({ canDownload: false, expireAt: null, frozen: false });
 }
+
 
 let currentAccess = null;
 
